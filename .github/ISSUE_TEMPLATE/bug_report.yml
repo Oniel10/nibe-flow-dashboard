@@ -1,0 +1,17 @@
+name: Fehler melden
+description: Ein reproduzierbares Problem beschreiben
+body:
+  - type: textarea
+    attributes:
+      label: Problem und Schritte
+      description: Bitte keine privaten Konfigurationen oder Zugangsdaten posten.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: App-Version, HA-Version und Architektur
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Erwartetes Verhalten

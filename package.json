@@ -1,0 +1,17 @@
+{
+  "name": "nibe-flow-card",
+  "version": "0.5.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "description": "Animierte Home-Assistant-Karte für NIBE-Wärmepumpen",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test",
+    "check": "npm run build && npm run build:app && npm test",
+    "build:app": "node scripts/build-app.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

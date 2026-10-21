@@ -1,0 +1,28 @@
+name: NIBE Flow
+version: "0.1.0"
+slug: nibe_flow
+description: Animierte Wärmepumpen-Übersicht, Steuerung, Energie und EEDC-Prognose
+arch:
+  - amd64
+  - aarch64
+startup: application
+boot: auto
+init: false
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:heat-pump
+panel_title: Wärmepumpe
+panel_admin: true
+homeassistant_api: true
+hassio_api: true
+hassio_role: default
+options:
+  dashboard: nibe-flow
+  enable_controls: false
+  eedc_slug: ""
+  eedc_anlage_id: 1
+schema:
+  dashboard: match(^[a-z0-9_-]+$)
+  enable_controls: bool
+  eedc_slug: match(^[a-z0-9_]*$)
+  eedc_anlage_id: int(1,1000000)
