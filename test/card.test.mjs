@@ -29,6 +29,11 @@ test('configuration cannot break out of the boot script', () => {
   assert.equal(html.includes('</script><script>bad()'), false);
   assert.equal((html.match(/<script>/g) || []).length, 1);
 });
+
+test('boost rejects ambiguous or non-integer register configuration', () => {
+  for(const config of [{boost_start_value:0},{boost_start_value:2.5},{boost_start_value:'2'},{boost_start_value:128},{boost_stop_value:true}]) assert.throws(()=>normalizeConfig(config));
+  assert.equal(normalizeConfig({boost_start_value:null}).boost_start_value,null);
+});
 test('bridge blocks physical writes when read-only', async () => {
   let calls = 0;
   const bridge = createBridge({ states: {}, callService() { calls++; } }, normalizeConfig({ entities: { hot_water_demand_mode_40057: 'select.ww' } }));

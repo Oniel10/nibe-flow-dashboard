@@ -20,6 +20,11 @@ jobs:
       - run: npm install --no-save playwright@1.64.1
       - run: npx playwright install --with-deps chromium
       - run: node scripts/check-app.mjs
+      - run: node scripts/check-boost.mjs
+      - run: node scripts/check-boost.mjs
+        env:
+          BOOST_ASSET: nibe_flow/app/static/card.js
+          BOOST_TAG: nibe-flow-card-v2
   container:
     runs-on: ubuntu-latest
     steps:

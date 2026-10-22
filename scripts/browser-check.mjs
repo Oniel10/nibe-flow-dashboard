@@ -210,7 +210,7 @@ try {
   if(!await frame.locator('#actions_wwZero').isVisible()||!(await frame.locator('#before_wwZero').textContent()).includes('41'))throw new Error('Fehlgeschlagener Entwurf ging verloren.');
   await frame.locator('#r_wwZero .row-actions button').first().click();
   await page.evaluate(()=>{fixture.callService=normalService;card.hass=fixture;});
-  if(!await frame.locator('#boost').isDisabled())throw new Error('Ungeprüfter Boost ist aktiv.');
+  if(!await frame.locator('#boost').isEnabled())throw new Error('Zugeordneter Boost bleibt gesperrt.');
   await page.evaluate(()=>{fixture.states[config.entities.hot_water_charging_bt6_30010].state='47.5';fixture.states[config.entities.hot_water_demand_mode_40057].state='MEDIUM';card.hass=fixture;});
   for(const [size,width,height] of [['desktop',1280,900],['mobile',390,844],['small-mobile',320,700]]){
    await page.setViewportSize({width,height});

@@ -4,7 +4,7 @@
 
 [![Add repository to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FOniel10%2Fnibe-flow-dashboard)
 
-**HA-App 0.1.0 · Frontend 0.5.0 · MIT · Deutsch · experimentell**
+**HA-App 0.1.1 · Frontend 0.5.1 · MIT · Deutsch · experimentell**
 
 ![Desktop-Vorschau mit synthetischen Daten](docs/images/app-demo-1280-dark.png)
 
@@ -18,6 +18,7 @@
 - Übersicht, Steuerung, Energie und Prognose in einer Oberfläche.
 - Einzelne Änderungen vormerken und speichern; „Vorher“ erscheint nur bei offenen Änderungen.
 - Plus/Minus neben Schiebereglern, native Grenzen und Schrittweiten, Gradminuten −400 bis +100.
+- WW-Boost direkt im Warmwasserfeld oder auf der Steuerungsseite starten und beenden.
 - Energieauswertung mit Tag, Woche, Monat, Jahr und Navigation durch vergangene Zeiträume.
 - Live-Stromherkunft, Batterie-Ladestand und geschätzter CO₂-Mix bei zugeordneten Quellen.
 - EEDC-Tagesprognose mit Datumswahl und geschätzter WP-Stromherkunft; andere Verbraucher haben Vorrang bei PV und Akku.
@@ -43,7 +44,7 @@ Die Installation baut das Container-Image auf deinem HA-System. Internet wird zu
 - WP-Prognose: historisches Muster aus bis zu 30 Tagen EEDC-Rohdaten, keine zusätzliche Wetterkorrektur. Haus-, PV- und Akku-Prognosen kommen direkt aus EEDC. Details stehen in [Prognose und Stromherkunft](docs/forecast.md).
 - Akku-Tagesvorschau: historische Mitternachts-Ladestände als Startannahme, kein bis zum Zieldatum fortgeschriebener Live-Ladestand.
 - Wärme, COP, Stromherkunft und CO₂ sind nur mit passenden Entitäten verfügbar. Fehlende oder widersprüchliche Daten werden nicht als null dargestellt.
-- Nicht geprüfte Aktionen, beispielsweise Warmwasser-Boost ohne gesicherte Modus-Codes, bleiben gesperrt.
+- WW-Boost benötigt eine geprüfte Zuordnung von Register 40698. Die Voreinstellung 2 = einmalige Erhöhung und 0 = aus wurde an einer S1155 geprüft; bei anderer Firmware zuvor die tatsächlichen Registerwerte prüfen. [Details](nibe_flow/DOCS.md#ww-boost).
 - Die eigenständige App wurde lokal mit simulierten HA-Antworten und automatisierten Tests geprüft. Ein Container-Start auf echter HA-Hardware ist noch nicht verifiziert. amd64 und aarch64 sind konfiguriert; Hardware-Kompatibilität ist noch zu bestätigen.
 
 Alle veröffentlichten Vorschaubilder verwenden **synthetische Werte**. Es werden keine persönlichen HA-Konfigurationen oder historischen Messdaten mitgeliefert.

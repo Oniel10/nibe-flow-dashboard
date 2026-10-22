@@ -29,6 +29,21 @@ Der Server liest vor dem Schreiben den aktuellen Entitätszustand mit Grenzen, S
 
 Die Sperre betrifft diese App. Sie verändert keine HA-Berechtigungen und keine globale Gerätesperre.
 
+### WW-Boost
+
+Der Knopf sitzt im Warmwasserfeld der Übersicht (Desktop und mobil) und unter Warmwasser auf der Steuerungsseite. Bei eingeschalteter Steuerung sendet **WW-Boost / Einmal starten** ausschließlich `number.set_value` an die Entitätsrolle `more_hot_water_40698`. Nach Rückmeldung der Anlage zeigt der Knopf **Boost beenden**; dieser sendet ausschließlich den Stoppwert. Andere vorgemerkte Änderungen werden dabei nicht gespeichert.
+
+Voreinstellung für S1155: `boost_start_value: 2` für einmalige Erhöhung, `boost_stop_value: 0` für aus. Diese Zuordnung wurde durch Ablesen des Registers vor und nach manueller Aktivierung am Gerät geprüft. Die generischen s8-Grenzen −128…127 der HA-Entität allein belegen keine Befehlscodes. Bei anderer Firmware zuerst am Gerät prüfen; keine Dauer-Codes aus einer anderen Modellreihe übernehmen.
+
+Abweichende Werte können in der importierten Kartenkonfiguration angegeben werden. Mit `boost_start_value: null` bleibt Boost ausgeschaltet. Beispiel ohne Entitäts-ID; unter `entities` muss die tatsächlich vorhandene Number-Entität zugeordnet werden:
+
+```yaml
+boost_start_value: 2
+boost_stop_value: 0
+```
+
+Fehlende Entität, unbekannter Zustand, ungültige Werte und Lesemodus sperren den Knopf mit einer passenden Erklärung. Während einer Schreibanfrage sind weitere Eingaben gesperrt. Ein Verbindungsfehler gilt nicht als bestätigter Start.
+
 ## Werte und Verlauf
 
 Die Oberfläche übernimmt HA-Werte alle fünf Sekunden. Die NIBE-Koordinatorabfrage erfolgt bei sichtbarer Seite beim Öffnen und anschließend alle 30 Sekunden. Daten aus Recorder/Statistiken benötigen aufgezeichnete Entitäten. Alte Daten werden durch die Installation nicht nachträglich erzeugt.

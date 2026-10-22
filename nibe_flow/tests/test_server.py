@@ -12,6 +12,18 @@ STATES={"number.dm":{"state":"-30","attributes":{"min":-1000,"max":1000,"step":1
 
 
 class Validation(unittest.TestCase):
+    def test_boost_only_sends_configured_start_and_stop(self):
+        config={"entities":{"more_hot_water_40698":"number.boost"},"enable_controls":True}
+        states={"number.boost":{"state":"0","attributes":{"min":-128,"max":127,"step":1}}}
+        def call(value,cfg=config):
+            return server.validate_service({"domain":"number","service":"set_value","data":{"value":value},"target":{"entity_id":"number.boost"}},cfg,states)
+        for value in (0,2):self.assertEqual(call(value)[2]["value"],value)
+        for value in (1,3,4,-1):
+            with self.assertRaises(web.HTTPBadRequest):call(value)
+        with self.assertRaises(web.HTTPConflict):call(2,{**config,"boost_start_value":None})
+        with self.assertRaises(web.HTTPForbidden):call(2,{**config,"enable_controls":False})
+        self.assertEqual(call(4,{**config,"boost_start_value":4})[2]["value"],4)
+
     def call(self,value,config=CONFIG):
         return server.validate_service({"domain":"number","service":"set_value","data":{"value":value},"target":{"entity_id":"number.dm"}},config,STATES)
 
@@ -37,6 +49,22 @@ class Validation(unittest.TestCase):
         server.bounded_dates("2026-01-01T00:00:00Z","2027-01-01T00:00:00Z")
         for a,b in [("bad","bad"),("2026-01-01","2026-01-02"),("2026-01-01T00:00:00Z","2025-01-01T00:00:00Z"),("2024-01-01T00:00:00Z","2026-01-01T00:00:00Z")]:
             with self.assertRaises(web.HTTPBadRequest):server.bounded_dates(a,b)
+
+
+class ConfigImport(unittest.IsolatedAsyncioTestCase):
+    async def test_boost_codes_follow_selected_entity_across_cards(self):
+        for override in (None,4):
+            backend=server.Backend("synthetic",{"dashboard":"demo","enable_controls":True},None)
+            async def ws(command):
+                return {"cards":[
+                    {"type":"custom:nibe-flow-card","entities":{"more_hot_water_40698":"number.old"},"boost_start_value":7},
+                    {"type":"custom:nibe-flow-card-v2","entities":{"more_hot_water_40698":"number.selected"},"boost_start_value":override,"boost_stop_value":0},
+                    {"type":"custom:nibe-flow-card","entities":{}}
+                ]}
+            backend.ws=ws
+            config=await backend.config()
+            self.assertEqual(config["entities"]["more_hot_water_40698"],"number.selected")
+            self.assertEqual(config["boost_start_value"],override)
 
 
 class FakeBackend:

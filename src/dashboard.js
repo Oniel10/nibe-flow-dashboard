@@ -351,6 +351,7 @@ function syncNumberSteppers(){
  }
 }
 function renderControls(){
+ renderBoost();
  queueMicrotask(syncNumberSteppers);
  if(!controlsMade)makeControls();
  for(const c of controls){
@@ -381,7 +382,42 @@ function renderControls(){
  }
 }
 let toastTimer;function toast(s){put('toast',s);$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,6000);}
-$('boost').disabled=true;$('boost').title='Die Dauer-Codes sind noch nicht geprüft';
+function boostState(){
+ const id=ids.more_hot_water_40698,state=entity(id),value=num(id),start=window.WP_CONFIG.boost_start_value,stop=window.WP_CONFIG.boost_stop_value;
+ let reason='';
+ if(!window.WP_CONFIG.enable_controls)reason='Steuerung ist ausgeschaltet.';
+ else if(!id||!state||value===null)reason='Boost-Entität derzeit nicht verfügbar.';
+ else if(!id.startsWith('number.'))reason='Boost benötigt eine zugeordnete Number-Entität.';
+ else if(!Number.isInteger(start)||!Number.isInteger(stop)||start===stop)reason='Boost-Registerwerte konfigurieren.';
+ else if(![start,stop].includes(value))reason='Unbekannter Boost-Zustand. Bitte an der Wärmepumpe prüfen.';
+ else {
+  const {min,max,step}=state.attributes||{};
+  if(![min,max,step].every(Number.isFinite)||step<=0||[start,stop].some(v=>v<min||v>max||Math.abs((v-min)/step-Math.round((v-min)/step))>0.00001))reason='Boost-Registerwerte außerhalb der Entitätsgrenzen.';
+ }
+ return {id,value,start,stop,active:value!==null&&value===start,reason};
+}
+function renderBoost(){
+ const state=boostState();
+ for(const button of document.querySelectorAll('.new-boost, #boost')){
+  button.disabled=!!state.reason||pending;
+  button.textContent=pending?'Bitte warten …':state.active?'Boost beenden':button.id==='boost'?'Einmal starten':'♨　 WW-Boost';
+  button.title=state.reason|| (state.active?'Einmalige Warmwasser-Erhöhung beenden':'Warmwasser einmalig erhöhen');
+  button.setAttribute('aria-pressed',String(state.active));
+ }
+}
+async function toggleBoost(){
+ const state=boostState();if(pending||state.reason||!hass)return;
+ const value=state.active?state.stop:state.start;
+ pending=true;renderControls();
+ try{
+  await hass.callService('number','set_value',{value},{entity_id:state.id});
+  const deadline=Date.now()+12000;
+  while(Date.now()<deadline){hass=window.__NIBE_HASS||hass;if(num(state.id)===value)break;await new Promise(r=>setTimeout(r,400));}
+  if(num(state.id)!==value)throw Error('Boost: Rückmeldung steht noch aus. Bitte Istwert prüfen.');
+  toast(value===state.start?'Einmaliger WW-Boost von Home Assistant bestätigt':'WW-Boost beendet');
+ }catch(e){toast(e.message||'WW-Boost fehlgeschlagen');}finally{pending=false;renderControls();}
+}
+document.querySelectorAll('.new-boost, #boost').forEach(button=>button.onclick=toggleBoost);
 async function saveControl(key){
  if(pending||!hass||!window.WP_CONFIG.enable_controls)return;
  const c=controls.find(c=>c.key===key),draft=dirty[key];if(!c?.id||!draft)return;

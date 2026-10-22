@@ -8,13 +8,17 @@ export function normalizeConfig(config) {
   if (!config || typeof config !== 'object') throw new Error('Kartenkonfiguration fehlt.');
   const result = {
     title: 'Wärmepumpe', model: 'NIBE S1155-6 PC', default_view: 'overview',
-    zero_temperature: 40, enable_controls: false, show_navigation: true, source_allocation: 'direct', co2_pv_g_per_kwh: 54, co2_battery_g_per_kwh: 115, ...config,
+    zero_temperature: 40, enable_controls: false, boost_start_value: 2, boost_stop_value: 0, show_navigation: true, source_allocation: 'direct', co2_pv_g_per_kwh: 54, co2_battery_g_per_kwh: 115, ...config,
     entities: { ...(config.entities || {}) },
   };
   if (!['overview', 'controls', 'energy', 'forecast'].includes(result.default_view)) {
     throw new Error('default_view muss overview, controls, energy oder forecast sein.');
   }
   if (typeof result.enable_controls !== 'boolean') throw new Error('enable_controls muss true oder false sein.');
+  for (const key of ['boost_start_value', 'boost_stop_value']) {
+    if (result[key] !== null && (!Number.isInteger(result[key]) || result[key] < -128 || result[key] > 127)) throw new Error(key + ' muss ein ganzzahliger s8-Registerwert oder null sein.');
+  }
+  if (result.boost_start_value !== null && result.boost_start_value === result.boost_stop_value) throw new Error('Boost-Start und -Stopp müssen verschieden sein.');
   if (typeof result.show_navigation !== 'boolean') throw new Error('show_navigation muss true oder false sein.');
   if (result.eedc != null && (!/^[a-z0-9_]+$/.test(result.eedc.addon_slug || '') || !Number.isSafeInteger(result.eedc.anlage_id) || result.eedc.anlage_id < 1)) {
     throw new Error('EEDC benötigt addon_slug und eine positive anlage_id.');

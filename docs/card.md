@@ -2,7 +2,7 @@
 
 Die App übernimmt Zuordnungen aus vorhandenen NIBE-Flow-Karten. Damit können Karte und App parallel verwendet werden. Für neue Installationen:
 
-1. `dist/nibe-flow-card.js` nach `/config/www/nibe-flow-card.js` kopieren und `/local/nibe-flow-card.js?v=0.5.0` als JavaScript-Modul unter Dashboard-Ressourcen hinzufügen.
+1. `dist/nibe-flow-card.js` nach `/config/www/nibe-flow-card.js` kopieren und `/local/nibe-flow-card.js?v=0.5.1` als JavaScript-Modul unter Dashboard-Ressourcen hinzufügen.
 2. In einem Dashboard eine Karte mit `type: custom:nibe-flow-card` anlegen.
 3. Im Karteneditor die tatsächlich verfügbaren Entitäten auswählen. Leere Rollen bleiben unbekannt.
 4. In der App den URL-Pfad dieses Dashboards unter `dashboard` eintragen.

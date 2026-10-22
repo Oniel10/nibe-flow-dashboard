@@ -57,6 +57,12 @@ def validate_service(payload, config, states):
             raise web.HTTPConflict(text="Grenzen der Entität sind nicht verfügbar.")
         if entity_id == config["entities"].get("degree_minutes_40012"):
             low, high = max(low, -400), min(high, 100)
+        if entity_id == config["entities"].get("more_hot_water_40698"):
+            codes = [config.get("boost_start_value", 2), config.get("boost_stop_value", 0)]
+            if any(isinstance(code, bool) or not isinstance(code, int) or not -128 <= code <= 127 for code in codes) or codes[0] == codes[1]:
+                raise web.HTTPConflict(text="Boost-Registerwerte sind nicht konfiguriert.")
+            if value not in codes:
+                raise web.HTTPBadRequest(text="Nur Boost-Start und -Stopp sind freigegeben.")
         if not low <= value <= high or not math.isclose((value-attrs["min"])/step, round((value-attrs["min"])/step), abs_tol=1e-7):
             raise web.HTTPBadRequest(text="Wert liegt außerhalb der Grenzen oder Schrittweite.")
     elif service == "select_option":
@@ -137,6 +143,12 @@ class Backend:
             entities.update({k:v for k,v in c.get("entities", {}).items() if isinstance(v, str) and ENTITY.fullmatch(v)})
         keys = ("title", "model", "zero_temperature", "source_allocation", "co2_pv_g_per_kwh", "co2_battery_g_per_kwh")
         config = {k:v for k,v in configs[0].items() if k in keys}
+        # Import codes only from cards mapping the selected boost target.
+        # Preserve explicit null (disabled), including on later cards.
+        boost_entity = entities.get("more_hot_water_40698")
+        for c in configs:
+            if boost_entity and c.get("entities", {}).get("more_hot_water_40698") == boost_entity:
+                config.update({k:c[k] for k in ("boost_start_value", "boost_stop_value") if k in c})
         config.update(entities=entities, enable_controls=self.options["enable_controls"], show_navigation=True, default_view="overview")
         if self.options.get("eedc_slug"):
             config["eedc"] = {"addon_slug": self.options["eedc_slug"], "anlage_id": self.options["eedc_anlage_id"]}
